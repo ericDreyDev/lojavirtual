@@ -15,6 +15,16 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    
+                    <!-- ADICIONE ESTA LINHA AQUI - LINK PRODUTOS -->
+                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                        {{ __('Produtos') }}
+                    </x-nav-link>
+                    
+                    <!-- LINK TYPES -->
+                    <x-nav-link :href="route('types.index')" :active="request()->routeIs('types.*')">
+                        {{ __('Types') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -69,6 +79,16 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            
+            <!-- ADICIONE ESTA LINHA AQUI TAMBÉM - VERSÃO MOBILE -->
+            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                {{ __('Produtos') }}
+            </x-responsive-nav-link>
+            
+            <!-- LINK TYPES - VERSÃO MOBILE -->
+            <x-responsive-nav-link :href="route('types.index')" :active="request()->routeIs('types.*')">
+                {{ __('Types') }}
             </x-responsive-nav-link>
         </div>
 

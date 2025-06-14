@@ -24,13 +24,12 @@ class TypesController extends Controller
     {
         $request->validate([
             'name' => 'required|min:2|max:50',
-
         ]);
 
         Type::create([
             'name' => $request->name,
-
         ]);
+
         return redirect('/types')->with('success', 'Tipo cadastrado com sucesso!');
     }
 
@@ -40,34 +39,37 @@ class TypesController extends Controller
         return view('types.edit', ['type' => $type]);
     }
 
-
     public function update(Request $request)
     {
+        $request->validate([
+            'id' => 'required',
+            'name' => 'required|min:2|max:50',
+        ]);
+
         $type = Type::find($request->id);
         $type->update([
             'name' => $request->name
         ]);
-        //nome da variavel de sessao é 'success'
+
         return redirect('/types')->with('success', 'Tipo atualizado com sucesso!');
     }
 
     public function destroy($id)
     {
-        try{
-        $type = Type::find($id);
-        $type->delete();
-        return redirect('/types')->with('success', 'Tipo excluído com sucesso!');
+        try {
+            $type = Type::find($id);
+            $type->delete();
+            return redirect('/types')->with('success', 'Tipo excluído com sucesso!');
+        } catch (QueryException $e) {
+            // Verifica se é uma violação de integridade (foreign key)
+            if ($e->getCode() === '23000') {
+                return redirect('/types')
+                    ->with('error', 'Não é possível excluir: existem produtos vinculados a este tipo.');
+            }
 
-         } catch (QueryException $e) {
-        // Verifica se é uma violação de integridade (foreign key)
-        if ($e->getCode() === '23000') {
+            // Caso outro erro de banco
             return redirect('/types')
-                             ->with('error', 'Não é possível excluir: existem produtos vinculados a este tipo.');
+                ->with('error', 'Erro ao excluir tipo.');
         }
-
-        // Caso outro erro de banco
-        return redirect()('/types')
-                         ->with('error', 'Erro ao excluir tipo.');
-    }
     }
 }

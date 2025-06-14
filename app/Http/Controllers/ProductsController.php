@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Type;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
@@ -16,7 +17,7 @@ class ProductsController extends Controller
             $products = Product::where('name', 'like', "%$filter%")->get();
         } else {
             $products = Product::with('type')
-                ->orderBy('name', 'asc') // ordena pelo preço
+                ->orderBy('name', 'asc') // ordena pelo nome
                 ->get();
         }
 
@@ -46,9 +47,10 @@ class ProductsController extends Controller
     {
         $request->validate([
             'name' => 'required|min:2|max:50',
-            'quantity' => 'required|gt:0',
-            'price' => 'required|gt:0',
-            //'type_id' => 'required|exists:types,id',
+            'description' => 'nullable|max:500',
+            'quantity' => 'required|integer|gt:0',
+            'price' => 'required|numeric|gt:0',
+            'type_id' => 'required|exists:types,id',
         ]);
 
         Product::create([
@@ -64,11 +66,20 @@ class ProductsController extends Controller
     public function edit($id)
     {
         $product = Product::find($id);
-        return view('products.edit', ['product' => $product,  'types' => Type::all()]);
+        return view('products.edit', ['product' => $product, 'types' => Type::all()]);
     }
 
     public function update(Request $request)
     {
+        $request->validate([
+            'id' => 'required',
+            'name' => 'required|min:2|max:50',
+            'description' => 'nullable|max:500',
+            'quantity' => 'required|integer|gt:0',
+            'price' => 'required|numeric|gt:0',
+            'type_id' => 'required|exists:types,id',
+        ]);
+
         $product = Product::find($request->id);
         $product->update([
             'name' => $request->name,
@@ -82,8 +93,14 @@ class ProductsController extends Controller
 
     public function destroy($id)
     {
-        $product = Product::find($id);
-        $product->delete();
-        return redirect('/products')->with('success', 'Produto excluído com sucesso!');
+        try {
+            $product = Product::find($id);
+            $product->delete();
+            return redirect('/products')->with('success', 'Produto excluído com sucesso!');
+        } catch (QueryException $e) {
+            // Caso haja algum erro de banco
+            return redirect('/products')
+                ->with('error', 'Erro ao excluir produto.');
+        }
     }
 }

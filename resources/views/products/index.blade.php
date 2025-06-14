@@ -23,9 +23,16 @@
 
             {{-- Mensagem de sucesso --}}
             @if ($message = Session::get('success'))
-                <div class="p-4 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 rounded">
-                    {{ $message }}
-                </div>
+            <div class="p-4 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 rounded">
+                {{ $message }}
+            </div>
+            @endif
+
+            {{-- Mensagem de erro --}}
+            @if ($message = Session::get('error'))
+            <div class="p-4 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100 rounded">
+                {{ $message }}
+            </div>
             @endif
 
             {{-- Formulário de busca --}}
@@ -53,6 +60,15 @@
                                 Nome</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Descrição</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Quantidade</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Preço</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Tipo</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -61,23 +77,54 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach ($products as $product)
-                            <tr>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{{ $product->name }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                    {{ $product->type->name }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 space-x-2">
-                                    <a href="{{ url('/products/update', ['id' => $product->id]) }}">
-                                        <x-primary-button
-                                            class="bg-indigo-600 hover:bg-indigo-700">Editar</x-primary-button>
-                                    </a>
-                                    <a href="{{ url('/products/delete', ['id' => $product->id]) }}">
-                                        <x-danger-button>Excluir</x-danger-button>
-                                    </a>
-                                </td>
-                            </tr>
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {{ $product->name }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                {{ Str::limit($product->description, 50) ?? 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                {{ $product->quantity }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                R$ {{ number_format($product->price, 2, ',', '.') }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                {{ $product->type->name ?? 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 space-x-2">
+                                {{-- CORRIGIDO: Link de editar aponta para /products/edit/{id} --}}
+                                <a href="{{ url('/products/edit/' . $product->id) }}">
+                                    <x-primary-button
+                                        class="bg-indigo-600 hover:bg-indigo-700">Editar</x-primary-button>
+                                </a>
+
+                                {{-- CORRIGIDO: Excluir agora usa formulário POST --}}
+                                <form action="{{ url('/products/delete/' . $product->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <x-danger-button type="submit" onclick="return confirm('Tem certeza que deseja excluir este produto?')">
+                                        Excluir
+                                    </x-danger-button>
+                                </form>
+                            </td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
+
+                {{-- Mensagem quando não há produtos --}}
+                @if($products->isEmpty())
+                <div class="text-center py-12">
+                    <div class="text-gray-500 dark:text-gray-400">
+                        @if($filter)
+                        <p>Nenhum produto encontrado para "{{ $filter }}".</p>
+                        @else
+                        <p>Nenhum produto cadastrado.</p>
+                        @endif
+                    </div>
+                </div>
+                @endif
             </div>
 
         </div>
