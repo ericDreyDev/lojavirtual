@@ -5,31 +5,32 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ route('catalog.protected') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                    <!-- Catálogo -->
+                    <x-nav-link :href="route('catalog.protected')" :active="request()->routeIs('catalog.protected')">
+                        Catálogo
                     </x-nav-link>
-                    
-                    <!-- ADICIONE ESTA LINHA AQUI - LINK PRODUTOS -->
+
+                    <!-- Produtos -->
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
-                        {{ __('Produtos') }}
+                        Produtos
                     </x-nav-link>
-                    
-                    <!-- LINK TYPES -->
+
+                    <!-- Tipo de Produto -->
                     <x-nav-link :href="route('types.index')" :active="request()->routeIs('types.*')">
-                        {{ __('Tipo de Produto') }}
+                        Tipo de Produto
                     </x-nav-link>
 
-                       <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
-        {{ __('Fornecedores') }}
-    </x-nav-link>
-
+                    <!-- Fornecedores -->
+                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+                        Fornecedores
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -38,7 +39,11 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+                            @if(Auth::check())
+                                <div>{{ Auth::user()->name }}</div>
+                            @else
+                                <div class="text-gray-400">Visitante</div>
+                            @endif
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -49,20 +54,24 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                        @auth
+                            <x-dropdown-link :href="route('profile.edit')">
+                                Profile
                             </x-dropdown-link>
-                        </form>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('logout')"
+                                                 onclick="event.preventDefault(); this.closest('form').submit();">
+                                    Log Out
+                                </x-dropdown-link>
+                            </form>
+                        @endauth
+
+                        @guest
+                            <x-dropdown-link :href="route('login')">Login</x-dropdown-link>
+                            <x-dropdown-link :href="route('register')">Register</x-dropdown-link>
+                        @endguest
                     </x-slot>
                 </x-dropdown>
             </div>
@@ -80,51 +89,57 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <!-- Responsive Navigation Menu -->
-<div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-    <div class="pt-2 pb-3 space-y-1">
-        <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-            {{ __('Dashboard') }}
-        </x-responsive-nav-link>
-        
-        <!-- ADICIONE ESTA LINHA AQUI TAMBÉM - VERSÃO MOBILE -->
-        <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
-            {{ __('Produtos') }}
-        </x-responsive-nav-link>
-        
-        <!-- LINK TYPES - VERSÃO MOBILE -->
-        <x-responsive-nav-link :href="route('types.index')" :active="request()->routeIs('types.*')">
-            {{ __('Types') }}
-        </x-responsive-nav-link>
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+            <!-- Catálogo -->
+            <x-responsive-nav-link :href="route('catalog.protected')" :active="request()->routeIs('catalog.protected')">
+                Catálogo
+            </x-responsive-nav-link>
 
-        <!-- ADICIONE ESTA LINHA PARA FORNECEDORES - VERSÃO MOBILE -->
-        <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
-            {{ __('Fornecedores') }}
-        </x-responsive-nav-link>
-    </div>
+            <!-- Produtos -->
+            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                Produtos
+            </x-responsive-nav-link>
+
+            <!-- Tipo de Produto -->
+            <x-responsive-nav-link :href="route('types.index')" :active="request()->routeIs('types.*')">
+                Tipo de Produto
+            </x-responsive-nav-link>
+
+            <!-- Fornecedores -->
+            <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+                Fornecedores
+            </x-responsive-nav-link>
+        </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
+            @if(Auth::check())
+                <div class="px-4">
+                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
+                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                </div>
+            @endif
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                @auth
+                    <x-responsive-nav-link :href="route('profile.edit')">
+                        Profile
                     </x-responsive-nav-link>
-                </form>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <x-responsive-nav-link :href="route('logout')"
+                                               onclick="event.preventDefault(); this.closest('form').submit();">
+                            Log Out
+                        </x-responsive-nav-link>
+                    </form>
+                @endauth
+
+                @guest
+                    <x-responsive-nav-link :href="route('login')">Login</x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('register')">Register</x-responsive-nav-link>
+                @endguest
             </div>
         </div>
     </div>

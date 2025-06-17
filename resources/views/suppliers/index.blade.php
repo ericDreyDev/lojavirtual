@@ -11,7 +11,7 @@
             {{-- Ações principais --}}
             <div class="flex justify-between items-center">
                 {{-- Botão Voltar --}}
-                <a href="{{ url('/dashboard') }}">
+                <a href="{{ url('/catalog') }}">
                     <x-secondary-button>Voltar</x-secondary-button>
                 </a>
 

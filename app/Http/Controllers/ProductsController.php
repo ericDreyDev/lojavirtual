@@ -27,14 +27,51 @@ class ProductsController extends Controller
         ]);
     }
 
-    /*$products = DB::select("SELECT name, price FROM products WHERE price > ?", [100]);*/
+    public function catalog(Request $request)
+    {
+        $selectedType = $request->input('type');
 
-    /*$results = DB::table('products')
-    ->join('types', 'types.id', '=', 'products.type_id')
-    ->select('products.*', 'types.name as type_name')
-    ->get();*/
+        $productsQuery = Product::with('type')->where('quantity', '>', 0);
 
-    /*$data = json_decode(json_encode($stdObject), true);*/
+        if ($selectedType) {
+            $productsQuery->where('type_id', $selectedType);
+        }
+
+        $products = $productsQuery->get();
+        $types = Type::all();
+
+        // Buscar imagens para cada produto
+        $imageLinks = [];
+        foreach ($products as $product) {
+            $imageLinks[$product->id] = $this->buscarImagemGoogle($product->name);
+        }
+
+        return view('catalog', compact('products', 'types', 'selectedType', 'imageLinks'));
+    }
+
+    private function buscarImagemGoogle($query)
+{
+    $apiKey = env('GOOGLE_API_KEY');
+    $cx = env('GOOGLE_CX_ID');
+
+    $url = 'https://www.googleapis.com/customsearch/v1?' . http_build_query([
+        'key' => $apiKey,
+        'cx' => $cx,
+        'searchType' => 'image',
+        'q' => $query,
+        'num' => 1
+    ]);
+
+    $response = file_get_contents($url);
+    $data = json_decode($response, true);
+
+    if (isset($data['items'][0]['link'])) {
+        return $data['items'][0]['link'];
+    } else {
+        return '/images/default.jpg';
+    }
+}
+
 
     public function create()
     {
